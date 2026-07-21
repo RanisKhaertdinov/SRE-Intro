@@ -1,93 +1,300 @@
 {
-  "annotations": { "list": [] },
+  "uid": "quickticket-golden-signals",
+  "title": "QuickTicket — Golden Signals",
+  "tags": ["quickticket", "sre"],
+  "timezone": "browser",
   "editable": true,
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "5s",
+  "time": { "from": "now-15m", "to": "now" },
   "panels": [
     {
+      "id": 1,
       "title": "Request Rate (Traffic)",
       "description": "Golden Signal #2: How much demand is being placed on the system",
       "type": "timeseries",
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "gridPos": { "x": 0, "y": 0, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
       "targets": [
-        {
-          "expr": "sum(rate(gateway_requests_total[1m])) by (path)",
-          "legendFormat": "{{path}}",
-          "refId": "A"
-        }
+        { "refId": "A", "expr": "sum(rate(gateway_requests_total[1m])) by (path)", "legendFormat": "{{path}}" }
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "reqps",
-          "custom": { "drawStyle": "line", "fillOpacity": 10 }
-        }
-      }
-    },
-    {
-      "title": "Error Rate",
-      "description": "Golden Signal #3: Percentage of requests failing with 5xx",
-      "type": "timeseries",
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
-      "targets": [
-        {
-          "expr": "sum(rate(gateway_requests_total{status=~\"5..\"}[1m])) / sum(rate(gateway_requests_total[1m])) * 100",
-          "legendFormat": "5xx error %",
-          "refId": "A"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "percent",
-          "custom": { "drawStyle": "line", "fillOpacity": 10 },
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": { "type": "linear" },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": { "group": "A", "mode": "none" },
+            "thresholdsStyle": { "mode": "off" }
+          },
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "green", "value": null },
+              { "color": "green", "value": 0 },
+              { "color": "red", "value": 80 }
+            ]
+          },
+          "unit": "reqps"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": { "calcs": [], "displayMode": "list", "placement": "bottom", "showLegend": true },
+        "tooltip": { "hideZeros": false, "mode": "single", "sort": "none" }
+      }
+    },
+    {
+      "id": 2,
+      "title": "Error Rate",
+      "description": "Golden Signal #3: Percentage of requests failing with 5xx",
+      "type": "timeseries",
+      "gridPos": { "x": 12, "y": 0, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate(gateway_requests_total{status=~\"5..\"}[1m])) / sum(rate(gateway_requests_total[1m])) * 100",
+          "legendFormat": "5xx error %"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": { "type": "linear" },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": { "group": "A", "mode": "none" },
+            "thresholdsStyle": { "mode": "off" }
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": 0 },
               { "color": "yellow", "value": 1 },
               { "color": "red", "value": 5 }
             ]
           },
-          "color": { "mode": "thresholds" }
-        }
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": { "calcs": [], "displayMode": "list", "placement": "bottom", "showLegend": true },
+        "tooltip": { "hideZeros": false, "mode": "single", "sort": "none" }
       }
     },
     {
+      "id": 3,
       "title": "Service Health (up/down)",
       "description": "Prometheus 'up' metric — 1 = scrape succeeded, 0 = target unreachable",
       "type": "table",
-      "gridPos": { "h": 4, "w": 24, "x": 0, "y": 8 },
+      "gridPos": { "x": 0, "y": 8, "w": 24, "h": 6 },
+      "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
       "targets": [
-        {
-          "expr": "up",
-          "format": "table",
-          "instant": true,
-          "refId": "A"
-        }
+        { "refId": "A", "expr": "up", "format": "table", "instant": true }
       ],
       "transformations": [
-        { "id": "filterFieldsByName", "options": { "include": { "names": ["job", "Value"] } } }
-      ]
+        {
+          "id": "filterFieldsByName",
+          "options": { "include": { "names": ["job", "Value"] } }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": { "type": "auto" },
+            "footer": { "reducers": [] },
+            "inspect": false
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": 0 },
+              { "color": "red", "value": 80 }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true
+      }
     },
     {
-      "title": "YOUR TURN: Add Latency panel here (p50 / p95 / p99)",
+      "id": 4,
+      "title": "Latency (p50 / p95 / p99)",
       "description": "Use histogram_quantile() with gateway_request_duration_seconds_bucket",
-      "type": "text",
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 12 },
-      "options": { "mode": "markdown", "content": "## Add a Latency panel here\n\nReplace this text panel with a timeseries panel showing:\n- p50: `histogram_quantile(0.50, sum(rate(gateway_request_duration_seconds_bucket[1m])) by (le))`\n- p95: `histogram_quantile(0.95, ...)`\n- p99: `histogram_quantile(0.99, ...)`\n\nSet unit to **seconds**." }
+      "type": "timeseries",
+      "gridPos": { "x": 0, "y": 14, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "histogram_quantile(0.5, sum by(le) (rate(gateway_request_duration_seconds_bucket[$__rate_interval])))",
+          "legendFormat": "p50"
+        },
+        {
+          "refId": "B",
+          "expr": "histogram_quantile(0.95, sum by(le) (rate(gateway_request_duration_seconds_bucket[$__rate_interval])))",
+          "legendFormat": "p95"
+        },
+        {
+          "refId": "C",
+          "expr": "histogram_quantile(0.99, sum by(le) (rate(gateway_request_duration_seconds_bucket[$__rate_interval])))",
+          "legendFormat": "p99"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": { "type": "linear" },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": { "group": "A", "mode": "none" },
+            "thresholdsStyle": { "mode": "off" }
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": 0 },
+              { "color": "red", "value": 80 }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": { "calcs": [], "displayMode": "list", "placement": "bottom", "showLegend": true },
+        "tooltip": { "hideZeros": false, "mode": "single", "sort": "none" }
+      }
     },
     {
-      "title": "YOUR TURN: Add Saturation panel here",
+      "id": 5,
+      "title": "DB Pool Saturation",
       "description": "Use events_db_pool_size gauge",
-      "type": "text",
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 12 },
-      "options": { "mode": "markdown", "content": "## Add a Saturation panel here\n\nReplace this text panel with a gauge showing:\n- Query: `events_db_pool_size`\n- Min: 0, Max: 10\n- Thresholds: green < 7, yellow < 9, red ≥ 9\n\nThis shows how many DB connections are active out of the pool maximum." }
+      "type": "gauge",
+      "gridPos": { "x": 12, "y": 14, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
+      "targets": [
+        { "refId": "A", "expr": "events_db_pool_size", "legendFormat": "__auto" }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "max": 10,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": 0 },
+              { "color": "#EAB839", "value": 7 },
+              { "color": "red", "value": 9 }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "barShape": "flat",
+        "barWidthFactor": 0.5,
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "sizing": "auto",
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "textMode": "auto"
+      }
+    },
+    {
+      "id": 6,
+      "title": "SLO — Gateway Availability",
+      "description": "Task 3.10: gateway:sli_availability:ratio_rate5m — target 99.5%",
+      "type": "gauge",
+      "gridPos": { "x": 0, "y": 22, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
+      "targets": [
+        { "refId": "A", "expr": "gateway:sli_availability:ratio_rate5m * 100", "legendFormat": "__auto" }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "max": 100,
+          "min": 99,
+          "unit": "percent",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": 0 },
+              { "color": "red", "value": 99.5 }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "barShape": "flat",
+        "barWidthFactor": 0.5,
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "sizing": "auto",
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "textMode": "auto"
+      }
     }
-  ],
-  "refresh": "5s",
-  "schemaVersion": 39,
-  "tags": ["quickticket", "sre"],
-  "templating": { "list": [] },
-  "time": { "from": "now-15m", "to": "now" },
-  "timepicker": {},
-  "timezone": "browser",
-  "title": "QuickTicket — Golden Signals",
-  "uid": "quickticket-golden-signals"
+  ]
 }
