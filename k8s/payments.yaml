@@ -11,10 +11,12 @@ spec:
       labels:
         app: payments
     spec:
+      imagePullSecrets:
+        - name: ghcr-secret
       containers:
         - name: payments
-          image: quickticket-payments:v1
-          imagePullPolicy: Never
+          image: ghcr.io/raniskhaertdinov/quickticket-payments:c95a3eb66e4da763c181165e085a505f80d5f7a3
+          imagePullPolicy: Always
           ports:
             - containerPort: 8082
           env:
