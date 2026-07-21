@@ -20,3 +20,20 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Build gateway service
+        run: docker build -t ghcr.io/raniskhaertdinov/quickticket-gateway:${{ github.sha }} ./app/gateway
+
+      - name: Push gateway service
+        run: docker push ghcr.io/raniskhaertdinov/quickticket-gateway:${{ github.sha }}
+
+      - name: Build events service
+        run: docker build -t ghcr.io/raniskhaertdinov/quickticket-events:${{ github.sha }} ./app/events
+
+      - name: Push events service
+        run: docker push ghcr.io/raniskhaertdinov/quickticket-events:${{ github.sha }}
+
+      - name: Build payments service
+        run: docker build -t ghcr.io/raniskhaertdinov/quickticket-payments:${{ github.sha }} ./app/payments
+
+      - name: Push payments service
+        run: docker push ghcr.io/raniskhaertdinov/quickticket-payments:${{ github.sha }}
